@@ -1,10 +1,7 @@
 require "plist"
 require "fileutils"
 
-path = "."
-plist_files = Dir.glob("#{path}/Configuration/**/*.plist")
-
-def colors_from_hash(colors_hash)
+def generate_png(colors_hash)
   colors_path = 'colors'
 
   FileUtils.rm_rf colors_path
@@ -30,9 +27,30 @@ def colors_from_hash(colors_hash)
   FileUtils.rm_rf colors_path
 end
 
-plist_files.each do |plist_file|
-  content = Plist::parse_xml(plist_file)
-  colors = content["colors"]
-  next if colors.nil?
-  colors_from_hash(colors)
+def colors_hash_from_plist(plist_content)
+  colors_hash = {}
+  plist_content.each do |key, value|
+    if key.downcase == "colors" then
+      colors_hash = colors_hash.merge(value)
+    elsif value.is_a?(Hash)
+      sub_hash = colors_hash_from_plist(value)
+      colors_hash = colors_hash.merge(sub_hash)
+    end
+  end
+  colors_hash
 end
+
+def colors_hash_from_plist_files(plist_files)
+  colors_hash = {}
+  plist_files.each do |plist_file|
+    content = Plist::parse_xml(plist_file)
+    plist_colors = colors_hash_from_plist(content)
+    colors_hash = colors_hash.merge(plist_colors)
+  end
+  colors_hash
+end
+
+path = "."
+plist_files = Dir.glob("#{path}/Configuration/**/*.plist")
+colors_hash = colors_hash_from_plist_files(plist_files)
+generate_png(colors_hash)
