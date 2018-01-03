@@ -3,7 +3,11 @@
 This script extract colors from plist and creates a png.
 
 # How to install
+```
+gem install plist_colors
+```
 
+To build it from source:
 ```
 cd plist_colors
 gem build plist_colors.gemspec
@@ -14,7 +18,11 @@ gem install ./plist_colors-x.x.x.gem
 
 Go to your `.xcodeproj` folder `cd /paht/to/my/xcodeproj`.
 
-Then run `plist_colors`
+Then run 
+```
+plist_colors
+open color_mapping.png
+```
 
 ## Example
 
